@@ -64,9 +64,43 @@ public class Rabbit extends Animal {
     	
     }
     
+    int checkBushRow(int bushDirection, int bushDistance) {
+    	if(bushDirection == Model.E || bushDirection == Model.W) {
+    		return this.row;
+    	}else if(bushDirection == Model.N || bushDirection == Model.NE || bushDirection == Model.NW) {
+    		return this.row - bushDistance;
+    	}else if(bushDirection == Model.S || bushDirection == Model.SE || bushDirection == Model.SW) {
+    		return this.row + bushDistance;
+    	}else {
+    		return 0;
+    	}
+    }
+    
+    int checkBushCol(int bushDirection, int bushDistance) {
+    	if(bushDirection == Model.N || bushDirection == Model.S) {
+    		return this.column;
+    	}else if(bushDirection == Model.E || bushDirection == Model.NE || bushDirection == Model.SE) {
+    		return this.column + bushDistance;
+    	}else if(bushDirection == Model.W || bushDirection == Model.NW || bushDirection == Model.SW) {
+    		return this.column - bushDistance;
+    	}else {
+    		return 0;
+    	}
+    }
+    
+    boolean isEdgeBush(int bushDirection, int bushDistance) {
+    	int bushCol = checkBushCol(bushDirection, bushDistance);
+    	int bushRow = checkBushRow(bushDirection, bushDistance);
+    	
+    	if(bushCol == 0 || bushCol == 19 || bushRow == 0 || bushRow == 19) {
+    		return true;
+    	}
+    	return false;   	   	
+    }
+    
 
     
-    int decideMove() {
+    int decideMove() {    	
     	//If not next to a bush, move to a bush
     	if(!atBush){
     		//If too close to the edge, move in the opposite direction
@@ -91,17 +125,17 @@ public class Rabbit extends Animal {
     		
     		//Otherwise move towards bush
     		for (int i = Model.MIN_DIRECTION; i <= Model.MAX_DIRECTION; i++) {
-                if (look(i) == Model.BUSH && distance(i) < shortestBushDistance) {
+                if (look(i) == Model.BUSH && distance(i) < shortestBushDistance && !isEdgeBush(i, distance(i))) {
                     shortestBushDistance = distance(i);
                     directionToBush = i;
                 }
             }
     		//Makes sure rabbit is in proper placement around the bush
     		if(shortestBushDistance <= 1 && !checkBushPlacement()) {
-    			System.out.println("adjusting");
     			atBush = true;
-    			directionToBush = Model.turn(directionToBush, -1);
-    			return Model.turn(directionToBush, 1);
+    			int moveDirection = Model.turn(directionToBush, 1);
+    			directionToBush = Model.turn(directionToBush, -1);			
+    			return moveDirection;
     		}else if(shortestBushDistance <= 1) {
     			atBush = true;
     		}
